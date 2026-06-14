@@ -1,26 +1,50 @@
-import React from "react";
-import { v4 as uuid } from "uuid";
+import React, { useState } from "react";
+import Header from "./Header";
+import ItemForm from "./ItemForm";
+import ShoppingList from "./ShoppingList";
+import Filter from "./Filter";
 
-function ItemForm(props) {
+function App() {
+  const [items, setItems] = useState([]);
+  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [search, setSearch] = useState("");
+  const [category, setCategory] = useState("All");
+
+  function handleAddItem(newItem) {
+    setItems([...items, newItem]);
+  }
+
+  function handleDarkModeClick() {
+    setIsDarkMode((isDarkMode) => !isDarkMode);
+  }
+
+  const itemsToDisplay = items.filter((item) => {
+    const matchesSearch = item.name
+      .toLowerCase()
+      .includes(search.toLowerCase());
+
+    const matchesCategory =
+      category === "All" || item.category === category;
+
+    return matchesSearch && matchesCategory;
+  });
+
   return (
-    <form className="NewItem">
-      <label>
-        Name:
-        <input type="text" name="name" />
-      </label>
-
-      <label>
-        Category:
-        <select name="category">
-          <option value="Produce">Produce</option>
-          <option value="Dairy">Dairy</option>
-          <option value="Dessert">Dessert</option>
-        </select>
-      </label>
-
-      <button type="submit">Add to List</button>
-    </form>
+    <div className={"App " + (isDarkMode ? "dark" : "light")}>
+      <Header
+        isDarkMode={isDarkMode}
+        onDarkModeClick={handleDarkModeClick}
+      />
+      <Filter
+        search={search}
+        onSearchChange={setSearch}
+        category={category}
+        onCategoryChange={setCategory}
+      />
+      <ItemForm onItemFormSubmit={handleAddItem} />
+      <ShoppingList items={itemsToDisplay} />
+    </div>
   );
 }
 
-export default ItemForm;
+export default App;
